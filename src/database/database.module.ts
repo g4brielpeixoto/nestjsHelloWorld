@@ -1,15 +1,19 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { ConfigService } from '@nestjs/config'
+
+const configService = new ConfigService()
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3307,
-      username: 'root',
-      password: '258697',
+      host: configService.get('DB_HOST'),
+      port: configService.get('DB_PORT'),
+      username: configService.get('DB_USERNAME'),
+      password: configService.get('DB_PASSWORD'),
       database: 'usercrud',
+      synchronize: true,
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       migrations: [
         __dirname.includes('dist')
@@ -19,4 +23,4 @@ import { TypeOrmModule } from '@nestjs/typeorm'
     }),
   ],
 })
-export class DataBaseModule {}
+export class DatabaseModule {}

@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
-import { User as UserEntity } from './entities/user.entity'
+import { User, User as UserEntity } from './entities/user.entity'
 
 @Injectable()
 export class UsersService {
@@ -16,7 +16,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     try {
-      const user = await this.userRepository.create(createUserDto)
+      const user = this.userRepository.create(createUserDto)
       await this.userRepository.save(user)
       return user
     } catch (error) {
@@ -35,7 +35,7 @@ export class UsersService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     try {
       const user = await this.userRepository.findOneByOrFail({ id })
       return user
@@ -45,7 +45,7 @@ export class UsersService {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: number, updateUserDto: UpdateUserDto) {
     try {
       const user = await this.userRepository.update(id, updateUserDto)
       return user
@@ -55,10 +55,20 @@ export class UsersService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     try {
       const user = await this.userRepository.findOneByOrFail({ id })
       if (user) await this.userRepository.delete(id)
+    } catch (error) {
+      this.logger.error(`error: ${JSON.stringify(error.message)}`)
+      return error
+    }
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    try {
+      const user = await this.userRepository.findOneBy({ email })
+      return user
     } catch (error) {
       this.logger.error(`error: ${JSON.stringify(error.message)}`)
       return error
